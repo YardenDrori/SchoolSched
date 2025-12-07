@@ -1,0 +1,46 @@
+<div class="schedule-controls">
+  <div class="group-slider">
+    <div 
+      class="slider-option" 
+      [class.active]="selectedGroup() === 'A'"
+      (click)="scheduleService.selectedGroup.set('A')">
+      קבוצה A
+    </div>
+    <div 
+      class="slider-option" 
+      [class.active]="selectedGroup() === 'B'"
+      (click)="scheduleService.selectedGroup.set('B')">
+      קבוצה B
+    </div>
+    <div class="slider-indicator" [class.right]="selectedGroup() === 'B'"></div>
+  </div>
+  
+  <button 
+    class="btn"
+    (click)="scheduleService.toggleShowOnlyToday()"
+    [class.active]="showOnlyToday()">
+    {{ showOnlyToday() ? 'הצג שבוע' : 'היום בלבד' }}
+  </button>
+</div>
+
+<div class="schedule-grid">
+  @for (day of schedule(); track day.dayNumber) {
+    <div class="day-column">
+      <div class="day-header">{{ day.day }}</div>
+      
+      @for (slot of getTimeSlotsForDay($index); track slot.start) {
+        <div 
+          class="time-slot"
+          [class.break]="slot.isBreak"
+          [class.current]="isCurrentSlot(day.day, slot)"
+          [style.border-left]="'4px solid ' + getSlotColor(slot)">
+          <div class="slot-label">{{ slot.label }}</div>
+          <div class="slot-time">{{ slot.start }} - {{ slot.end }}</div>
+          @if (getSlotDetails(slot)) {
+            <div class="slot-details">{{ getSlotDetails(slot) }}</div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

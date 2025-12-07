@@ -1,0 +1,56 @@
+.timer {
+  padding: 1.5rem;
+  background: var(--ctp-surface0);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: background-color 0.3s ease;
+
+  &.no-period {
+    color: var(--ctp-subtext0);
+    font-size: 1.1rem;
+  }
+
+  .current-period {
+    margin-bottom: 1rem;
+
+    .period-label {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--ctp-text);
+      margin-bottom: 0.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .period-time {
+      display: block;
+      font-size: 1.1rem;
+      color: var(--ctp-subtext0);
+      direction: ltr;
+      transition: color 0.3s ease;
+    }
+  }
+
+  .next-break {
+    padding-top: 1rem;
+    border-top: 1px solid var(--ctp-surface1);
+    transition: border-color 0.3s ease;
+
+    .break-label {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--ctp-subtext0);
+      margin-bottom: 0.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .break-time {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--ctp-green);
+      transition: color 0.3s ease;
+    }
+  }
+}

@@ -1,0 +1,19 @@
+@if (currentPeriod(); as period) {
+  <div class="timer">
+    <div class="current-period">
+      <span class="period-label">{{ period.timeSlot.label }}</span>
+      <span class="period-time">{{ period.timeSlot.start }} - {{ period.timeSlot.end }}</span>
+    </div>
+    
+    @if (period.nextBreak && period.minutesUntilBreak !== undefined) {
+      <div class="next-break">
+        <span class="break-label">הפסקה הבאה בעוד</span>
+        <span class="break-time">{{ formatTime(period.minutesUntilBreak) }}</span>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="timer no-period">
+    <span>אין שיעור כרגע</span>
+  </div>
+}

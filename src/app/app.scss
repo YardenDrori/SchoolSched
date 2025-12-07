@@ -1,0 +1,84 @@
+.app-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--ctp-text);
+    margin: 0;
+    transition: color 0.3s ease;
+  }
+
+  .theme-toggle {
+    padding: 0.5rem;
+    background: var(--ctp-surface0);
+    border: 2px solid var(--ctp-surface1);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--ctp-text);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: var(--ctp-surface1);
+      border-color: var(--ctp-blue);
+      color: var(--ctp-blue);
+      transform: rotate(15deg);
+    }
+  }
+
+  .quote {
+    font-size: 1.1rem;
+    color: var(--ctp-subtext0);
+    font-style: italic;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+    transition: color 0.3s ease;
+  }
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  app-timer {
+    display: block;
+  }
+
+  app-schedule-grid {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .header .quote {
+    font-size: 1rem;
+  }
+}
