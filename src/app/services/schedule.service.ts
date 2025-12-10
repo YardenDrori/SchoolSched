@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { TimeSlot, CurrentPeriod } from '../models/schedule.models';
 import { ThemeService } from './theme.service';
 import { TIMETABLE_DATA } from '../data/timetable.data.js';
@@ -21,6 +21,7 @@ export interface DisplayDay {
 export class ScheduleService {
   private themeService = inject(ThemeService);
   private timetable = TIMETABLE_DATA;
+  private readonly SHOW_TODAY_STORAGE_KEY = 'show-only-today';
 
   private readonly DAY_MAP: Record<DayOfWeek, { hebrew: string; number: number }> = {
     sunday: { hebrew: 'ראשון', number: 0 },
@@ -207,8 +208,21 @@ export class ScheduleService {
     'לכו תזדיינו - אלי גוריאל',
   ];
 
-  showOnlyToday = signal<boolean>(false);
+  showOnlyToday = signal<boolean>(this.loadShowOnlyToday());
   selectedGroup = this.themeService.selectedGroup;
+
+  constructor() {
+    // Save showOnlyToday to localStorage whenever it changes
+    effect(() => {
+      const value = this.showOnlyToday();
+      localStorage.setItem(this.SHOW_TODAY_STORAGE_KEY, String(value));
+    });
+  }
+
+  private loadShowOnlyToday(): boolean {
+    const saved = localStorage.getItem(this.SHOW_TODAY_STORAGE_KEY);
+    return saved === 'true';
+  }
 
   schedule = computed(() => {
     const groupId = this.selectedGroup();
@@ -225,11 +239,12 @@ export class ScheduleService {
     const now = new Date();
     const currentDay = now.getDay();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    
+    const currentSeconds = now.getSeconds(); // Capture seconds once
+
     const groupId = this.selectedGroup();
     const displaySchedule = this.getDisplaySchedule(groupId);
     const daySchedule = displaySchedule.find(d => d.dayNumber === currentDay);
-    
+
     if (!daySchedule) return null;
 
     const timeSlots = daySchedule.slots;
@@ -237,19 +252,21 @@ export class ScheduleService {
     for (let i = 0; i < timeSlots.length; i++) {
       const slot = timeSlots[i];
       if (currentTime >= slot.start && currentTime < slot.end) {
-        const endMinutes = this.timeToMinutes(slot.end);
-        const currentMinutes = this.timeToMinutes(currentTime);
-        const minutesUntilEnd = endMinutes - currentMinutes;
+        const endSeconds = this.timeStringToSeconds(slot.end);
+        const nowTotalSeconds = this.timeStringToSeconds(currentTime) + currentSeconds;
+        const secondsUntilEnd = endSeconds - nowTotalSeconds;
+        const minutesUntilEnd = secondsUntilEnd / 60;
 
         // Find next break (if any)
         let nextBreak: TimeSlot | undefined;
         let minutesUntilBreak: number | undefined;
-        
+
         for (let j = i + 1; j < timeSlots.length; j++) {
           if (timeSlots[j].isBreak) {
             nextBreak = timeSlots[j];
-            const breakStartMinutes = this.timeToMinutes(nextBreak.start);
-            minutesUntilBreak = breakStartMinutes - currentMinutes;
+            const breakStartSeconds = this.timeStringToSeconds(nextBreak.start);
+            const secondsUntilBreak = breakStartSeconds - nowTotalSeconds;
+            minutesUntilBreak = secondsUntilBreak / 60;
             break;
           }
         }
@@ -257,15 +274,18 @@ export class ScheduleService {
         // If no explicit break, use gap between classes
         if (!nextBreak && i + 1 < timeSlots.length) {
           const nextSlot = timeSlots[i + 1];
-          const gapMinutes = this.timeToMinutes(nextSlot.start) - this.timeToMinutes(slot.end);
-          if (gapMinutes > 0) {
+          const nextSlotStartSeconds = this.timeStringToSeconds(nextSlot.start);
+          const slotEndSeconds = this.timeStringToSeconds(slot.end);
+          const gapSeconds = nextSlotStartSeconds - slotEndSeconds;
+          if (gapSeconds > 0) {
             nextBreak = {
               start: slot.end,
               end: nextSlot.start,
               isBreak: true,
               label: 'הפסקה'
             };
-            minutesUntilBreak = this.timeToMinutes(slot.end) - currentMinutes;
+            const secondsUntilBreak = slotEndSeconds - nowTotalSeconds;
+            minutesUntilBreak = secondsUntilBreak / 60;
           }
         }
 
@@ -280,6 +300,49 @@ export class ScheduleService {
     }
 
     return null;
+  }
+
+  getSchoolDayEnd(): string | null {
+    const now = new Date();
+    const currentDay = now.getDay();
+    const groupId = this.selectedGroup();
+    const displaySchedule = this.getDisplaySchedule(groupId);
+    const daySchedule = displaySchedule.find(d => d.dayNumber === currentDay);
+
+    if (!daySchedule) return null;
+
+    // Find the last period with a label (not empty)
+    const timeSlots = daySchedule.slots;
+    for (let i = timeSlots.length - 1; i >= 0; i--) {
+      if (timeSlots[i].label) {
+        return timeSlots[i].end;
+      }
+    }
+
+    return null;
+  }
+
+  getMinutesUntilDayEnd(): number | null {
+    const dayEnd = this.getSchoolDayEnd();
+    if (!dayEnd) return null;
+
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const currentSeconds = now.getSeconds(); // Capture seconds once
+
+    const dayEndSeconds = this.timeStringToSeconds(dayEnd);
+    const nowTotalSeconds = this.timeStringToSeconds(currentTime) + currentSeconds;
+    const secondsUntilEnd = dayEndSeconds - nowTotalSeconds;
+
+    if (secondsUntilEnd <= 0) return null;
+
+    return secondsUntilEnd / 60;
+  }
+
+  isSchoolDayActive(): boolean {
+    const currentPeriod = this.getCurrentPeriod();
+    const dayEndMinutes = this.getMinutesUntilDayEnd();
+    return currentPeriod !== null || (dayEndMinutes !== null && dayEndMinutes > 0);
   }
 
   getDailyQuote(): string {
@@ -299,5 +362,11 @@ export class ScheduleService {
   private timeToMinutes(time: string): number {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
+  }
+
+  // Convert HH:MM time string to total seconds from midnight
+  private timeStringToSeconds(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 3600 + minutes * 60;
   }
 }

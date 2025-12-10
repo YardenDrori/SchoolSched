@@ -84,10 +84,15 @@
 
   .day-column {
     background: var(--ctp-surface0);
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+
+    [data-theme="latte"] & {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--ctp-surface2);
+    }
 
     .day-header {
       background: var(--ctp-mantle);

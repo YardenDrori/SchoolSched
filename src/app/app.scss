@@ -28,7 +28,7 @@
     padding: 0.5rem;
     background: var(--ctp-surface0);
     border: 2px solid var(--ctp-surface1);
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     color: var(--ctp-text);
     transition: all 0.2s ease;
@@ -36,11 +36,19 @@
     align-items: center;
     justify-content: center;
 
+    [data-theme="latte"] & {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
     &:hover {
       background: var(--ctp-surface1);
       border-color: var(--ctp-blue);
       color: var(--ctp-blue);
       transform: rotate(15deg);
+
+      [data-theme="latte"] & {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
     }
   }
 

@@ -53,4 +53,26 @@
       transition: color 0.3s ease;
     }
   }
+
+  .day-end-countdown {
+    padding-top: 1rem;
+    border-top: 1px solid var(--ctp-surface1);
+    transition: border-color 0.3s ease;
+
+    .countdown-label {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--ctp-subtext0);
+      margin-bottom: 0.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .countdown-time {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--ctp-blue);
+      transition: color 0.3s ease;
+    }
+  }
 }

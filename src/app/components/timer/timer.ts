@@ -10,15 +10,19 @@ import { CurrentPeriod } from '../../models/schedule.models';
 })
 export class Timer implements OnInit, OnDestroy {
   currentPeriod = signal<CurrentPeriod | null>(null);
+  minutesUntilDayEnd = signal<number | null>(null);
+  isSchoolActive = signal<boolean>(true);
   private intervalId?: number;
 
   constructor(private scheduleService: ScheduleService) {}
 
   ngOnInit(): void {
     this.updatePeriod();
+
+    // Poll every 100ms for smooth updates, but the display will only change when seconds change
     this.intervalId = window.setInterval(() => {
       this.updatePeriod();
-    }, 10000); // Update every 10 seconds
+    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -29,14 +33,18 @@ export class Timer implements OnInit, OnDestroy {
 
   private updatePeriod(): void {
     this.currentPeriod.set(this.scheduleService.getCurrentPeriod());
+    this.minutesUntilDayEnd.set(this.scheduleService.getMinutesUntilDayEnd());
+    this.isSchoolActive.set(this.scheduleService.isSchoolDayActive());
   }
 
   formatTime(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+    const totalSeconds = Math.floor(minutes * 60);
+    const hours = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
     if (hours > 0) {
-      return `${hours}:${String(mins).padStart(2, '0')}`;
+      return `${hours}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
-    return `${mins} דקות`;
+    return `${mins}:${String(secs).padStart(2, '0')} דקות`;
   }
 }

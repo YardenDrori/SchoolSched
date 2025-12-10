@@ -13,4 +13,8 @@ body {
   direction: rtl;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
+
+  &[data-theme="latte"] {
+    background: linear-gradient(135deg, var(--ctp-base) 0%, var(--ctp-mantle) 100%);
+  }
 }

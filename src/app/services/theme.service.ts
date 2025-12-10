@@ -35,6 +35,10 @@ export class ThemeService {
     return (saved as Theme) || 'mocha';
   }
 
+  toggleTheme(): void {
+    this.currentTheme.update(current => current === 'latte' ? 'mocha' : 'latte');
+  }
+
   private loadGroup(): Group {
     const saved = localStorage.getItem(this.GROUP_STORAGE_KEY);
     return (saved as Group) || 'A';
@@ -57,13 +61,6 @@ export class ThemeService {
     this.currentTheme.set(theme);
   }
 
-  cycleTheme(): void {
-    const themes: Theme[] = ['latte', 'frappe', 'macchiato', 'mocha'];
-    const current = this.currentTheme();
-    const currentIndex = themes.indexOf(current);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    this.setTheme(themes[nextIndex]);
-  }
 
   toggleGroup(): void {
     this.selectedGroup.update(g => g === 'A' ? 'B' : 'A');
