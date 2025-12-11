@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { TimeSlot, CurrentPeriod } from '../models/schedule.models';
 import { ThemeService } from './theme.service';
-import { TIMETABLE_DATA } from '../data/timetable.data.js';
+import { TIMETABLE_DATA } from '../data/timetable.data';
 import { Group, Period, DayOfWeek, ScheduleEntry, ClassDef } from '../models/timetable.schema';
 export interface DisplaySlot extends TimeSlot {
   classInfo?: ClassDef;
