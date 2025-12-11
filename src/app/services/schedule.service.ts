@@ -45,24 +45,24 @@ export class ScheduleService {
   private buildDisplaySlots(group: Group, daySchedule: { day: DayOfWeek; classes: ScheduleEntry[] }): DisplaySlot[] {
     const template = this.timetable.periodTemplates.find((t: any) => t.id === group.templateId);
     if (!template) return [];
-    
+
     // Create a map of scheduled classes by period ID
     const scheduledMap = new Map<string, ScheduleEntry>();
     for (const entry of daySchedule.classes) {
       scheduledMap.set(entry.periodId, entry);
     }
-    
+
     const slots: DisplaySlot[] = [];
-    
+
     // Go through all periods in the template to maintain time alignment
     for (const period of template.periods) {
       const entry = scheduledMap.get(period.id);
-      
+
       if (entry) {
         const classInfo = this.timetable.classes[entry.classId];
         if (classInfo) {
           const isBreak = period.id.startsWith('B') || entry.classId === 'BREAK';
-          
+
           slots.push({
             start: period.start,
             end: period.end,
@@ -83,7 +83,7 @@ export class ScheduleService {
         });
       }
     }
-    
+
     return slots;
   }
 
@@ -227,7 +227,7 @@ export class ScheduleService {
   schedule = computed(() => {
     const groupId = this.selectedGroup();
     const displaySchedule = this.getDisplaySchedule(groupId);
-    
+
     if (this.showOnlyToday()) {
       const today = new Date().getDay();
       return displaySchedule.filter(day => day.dayNumber === today);
