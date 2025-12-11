@@ -34,16 +34,16 @@ export class ScheduleService {
   };
 
   private getGroupData(groupId: string): Group | undefined {
-    return this.timetable.groups.find((g: Group) => g.id === groupId);
+    return this.timetable?.groups?.find((g: Group) => g.id === groupId);
   }
 
   private getPeriodFromTemplate(templateId: string, periodId: string): Period | undefined {
-    const template = this.timetable.periodTemplates.find((t: any) => t.id === templateId);
-    return template?.periods.find((p: Period) => p.id === periodId);
+    const template = this.timetable?.periodTemplates?.find((t: any) => t.id === templateId);
+    return template?.periods?.find((p: Period) => p.id === periodId);
   }
 
   private buildDisplaySlots(group: Group, daySchedule: { day: DayOfWeek; classes: ScheduleEntry[] }): DisplaySlot[] {
-    const template = this.timetable.periodTemplates.find((t: any) => t.id === group.templateId);
+    const template = this.timetable?.periodTemplates?.find((t: any) => t.id === group.templateId);
     if (!template) return [];
 
     // Create a map of scheduled classes by period ID
@@ -59,7 +59,7 @@ export class ScheduleService {
       const entry = scheduledMap.get(period.id);
 
       if (entry) {
-        const classInfo = this.timetable.classes[entry.classId];
+        const classInfo = this.timetable?.classes?.[entry.classId];
         if (classInfo) {
           const isBreak = period.id.startsWith('B') || entry.classId === 'BREAK';
 
