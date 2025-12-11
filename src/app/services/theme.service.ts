@@ -16,14 +16,18 @@ export class ThemeService {
     // Save theme to localStorage whenever it changes
     effect(() => {
       const theme = this.currentTheme();
-      localStorage.setItem(this.THEME_STORAGE_KEY, theme);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(this.THEME_STORAGE_KEY, theme);
+      }
       this.applyTheme(theme);
     });
 
     // Save group to localStorage whenever it changes
     effect(() => {
       const group = this.selectedGroup();
-      localStorage.setItem(this.GROUP_STORAGE_KEY, group);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(this.GROUP_STORAGE_KEY, group);
+      }
     });
 
     // Apply initial theme
@@ -31,6 +35,7 @@ export class ThemeService {
   }
 
   private loadTheme(): Theme {
+    if (typeof localStorage === 'undefined') return 'mocha';
     const saved = localStorage.getItem(this.THEME_STORAGE_KEY);
     return (saved as Theme) || 'mocha';
   }
@@ -40,12 +45,17 @@ export class ThemeService {
   }
 
   private loadGroup(): Group {
+    if (typeof localStorage === 'undefined') return 'A';
     const saved = localStorage.getItem(this.GROUP_STORAGE_KEY);
     return (saved as Group) || 'A';
   }
 
   private applyTheme(theme: Theme): void {
     const colors = CATPPUCCIN_THEMES[theme];
+    if (!colors) {
+      console.error('Theme colors not found for:', theme);
+      return;
+    }
     const root = document.documentElement;
 
     // Apply all Catppuccin colors as CSS variables
