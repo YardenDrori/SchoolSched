@@ -212,14 +212,21 @@ export class ScheduleService {
   selectedGroup = this.themeService.selectedGroup;
 
   constructor() {
+    // Ensure timetable data is loaded
+    if (!this.timetable || !this.timetable.classes || !this.timetable.groups) {
+      console.error('Timetable data failed to load!', this.timetable);
+      this.timetable = TIMETABLE_DATA;
+    }
+
     // Save showOnlyToday to localStorage whenever it changes
     effect(() => {
       const value = this.showOnlyToday();
-      localStorage.setItem(this.SHOW_TODAY_STORAGE_KEY, String(value));
+      localStorage?.setItem(this.SHOW_TODAY_STORAGE_KEY, String(value));
     });
   }
 
   private loadShowOnlyToday(): boolean {
+    if (typeof localStorage === 'undefined') return false;
     const saved = localStorage.getItem(this.SHOW_TODAY_STORAGE_KEY);
     return saved === 'true';
   }
